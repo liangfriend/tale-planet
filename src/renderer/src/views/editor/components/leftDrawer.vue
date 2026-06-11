@@ -3,11 +3,11 @@
 
 import { computed, ref } from 'vue'
 import { EditorNode } from '@renderer/types'
-import { EditorBoxEnum, NodeEnum } from '@renderer/enum'
+import { EditorBoxEnum, NodeEnum } from 'deciphony-engine'
 import NodeCard from './nodeCard.vue'
 import NodeInfoDialog from './nodeInfoDialog.vue'
 import { editorNodeTemplate } from '@renderer/utils/nodeTemplate'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 import { useEditor } from '@renderer/composables/useEditor'
 
 const props = defineProps({
@@ -24,7 +24,7 @@ const {
   removeNode,
   groupedNodes,
   clearNodeManager
-} = useNodeManager()
+} = useEditorNodeManager()
 
 const emit = defineEmits(['update:modelValue'])
 // 顶部筛选列表

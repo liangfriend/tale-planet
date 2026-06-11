@@ -6,7 +6,7 @@ import {
   LayoutPositionEnum,
   NodeEnum,
   ObjectFitEnum
-} from '@renderer/enum'
+} from 'deciphony-engine'
 import {
   ActionNode,
   AudioNode,

@@ -45,7 +45,7 @@ async function publishGame() {
     front_cover: form.front_cover || '',
     data: JSON.stringify({
       editorNodeList: props.editorNodeList,
-      gameData: props.gameData,
+      gameData: props.gameData, // 这个应该去掉，editorNodeList能解析出来gameData
       editorInfo: props.editorInfo
     })
   }

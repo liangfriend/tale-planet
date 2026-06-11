@@ -5,7 +5,7 @@ import {
   LayoutPositionEnum,
   NodeEnum,
   ObjectFitEnum
-} from '@renderer/enum'
+} from 'deciphony-engine'
 
 export const nodeNameMap = {
   [NodeEnum.Story]: '故事节点',

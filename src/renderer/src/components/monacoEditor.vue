@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 
 const props = defineProps({
   modelValue: {
@@ -20,7 +20,7 @@ return true`
     default: '400px'
   }
 })
-const { editorNodeMap } = useNodeManager()
+const { editorNodeMap } = useEditorNodeManager()
 const emit = defineEmits(['update:modelValue', 'run'])
 
 const editorEl = ref<HTMLElement | null>(null)

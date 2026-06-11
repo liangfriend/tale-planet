@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, CSSProperties, onMounted, ref, watch } from 'vue'
-import { EditorBoxEnum } from '@renderer/enum'
+import { EditorBoxEnum } from 'deciphony-engine'
 import type { EngineNode } from '@renderer/types'
 import { useOperationHistory } from '@renderer/composables/useOperationHistory'
 

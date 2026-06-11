@@ -18,8 +18,11 @@ import {
   LayoutPositionEnum,
   NodeEnum,
   ObjectFitEnum
-} from '@renderer/enum'
-import { updateLoadedEditorNodeList, useNodeManager } from '@renderer/composables/useNodeManager'
+} from 'deciphony-engine'
+import {
+  updateLoadedEditorNodeList,
+  useEditorNodeManager
+} from '@renderer/composables/useEditorNodeManager'
 import NormalRectBox from './components/normalRectBox.vue'
 import RightTools from './components/rightTools.vue'
 import LeftDrawer from './components/leftDrawer.vue'
@@ -55,7 +58,7 @@ const {
   removeNode,
   removeNodes,
   addNodes
-} = useNodeManager()
+} = useEditorNodeManager()
 const { undo, redo, pushHistory } = useOperationHistory({
   editorNodeList,
   editorInfo,

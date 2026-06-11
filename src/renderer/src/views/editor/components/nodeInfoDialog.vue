@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { EditorNode, ImageNode, ResourceModel } from '@renderer/types'
-import { ActionTypeEnum, EditorBoxEnum, NodeEnum } from '@renderer/enum'
+import { ActionTypeEnum, EditorBoxEnum, NodeEnum } from 'deciphony-engine'
 import DynamicSelectGroup from '@renderer/components/dynamicSelectGroup.vue'
 import {
   actionTypeList,
@@ -11,7 +11,7 @@ import {
   nodeNameMap,
   objectFitList
 } from '@renderer/constant'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 import monacoEditor from '@renderer/components/monacoEditor.vue'
 import MonacoEditor from '@renderer/components/monacoEditor.vue'
 import ResourceSelect from '@renderer/views/editor/components/resourceSelect.vue'
@@ -35,7 +35,7 @@ const {
   removeNode,
   groupedNodes,
   clearNodeManager
-} = useNodeManager()
+} = useEditorNodeManager()
 
 const emit = defineEmits(['update:modelValue'])
 

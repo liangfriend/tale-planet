@@ -18,6 +18,30 @@
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
+      ],
+      "deciphony-engine": [
+        "../deciphony/packages/deciphony-engine/src/index.ts"
+      ],
+      "deciphony-engine*": [
+        "../deciphony/packages/deciphony-engine/src/*"
+      ],
+      "vue": [
+        "node_modules/vue"
+      ],
+      "vue-router": [
+        "node_modules/vue-router"
+      ],
+      "element-plus": [
+        "node_modules/element-plus"
+      ],
+      "gsap": [
+        "node_modules/gsap"
+      ],
+      "@vue/reactivity": [
+        "node_modules/@vue/reactivity"
+      ],
+      "@vue/runtime-core": [
+        "node_modules/@vue/runtime-core"
       ]
     }
   }

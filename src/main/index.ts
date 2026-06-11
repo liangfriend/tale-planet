@@ -12,7 +12,7 @@ import { registerController } from './register'
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1500,
-    height: 1900,
+    height: 1000,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -22,7 +22,9 @@ function createWindow(): void {
       webSecurity: false
     }
   })
-  mainWindow.webContents.openDevTools({ mode: 'bottom', activate: true })
+  if (is.dev) {
+    mainWindow.webContents.openDevTools({ mode: 'right', activate: true })
+  }
   initShortcut(mainWindow)
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

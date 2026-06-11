@@ -1,8 +1,5 @@
 // =============================== 撤销/恢复功能 ========================================
-import { EditorInfo, EditorNode, OperationHistory, Prefab } from '@renderer/types'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
-import { useEditor } from '@renderer/composables/useEditor'
-import { useGameData } from '@renderer/composables/useGameData'
+import { EditorInfo, EditorNode, OperationHistory, Prefab } from '@/types'
 import { Ref } from 'vue'
 
 const undoStack: OperationHistory[] = []

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 // 流程节点信息 story scene dialogue，
-import { NodeEnum } from '@renderer/enum'
+import { NodeEnum } from 'deciphony-engine'
 import DynamicSelectGroup from '@renderer/components/dynamicSelectGroup.vue'
 import { nodeNameMap } from '@renderer/constant'
 import { useRoute, useRouter } from 'vue-router'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 import { computed, inject, onMounted, ref, Ref } from 'vue'
 import { EditorNode, ImageNode, ResourceModel, StoryNode } from '@renderer/types'
 import MonacoEditor from '@renderer/components/monacoEditor.vue'
@@ -19,7 +19,7 @@ const {
   removeNode,
   groupedNodes,
   clearNodeManager
-} = useNodeManager()
+} = useEditorNodeManager()
 const curSelectedNode: Ref<EditorNode> = inject('curSelectedNode')!
 
 function deleteNode() {

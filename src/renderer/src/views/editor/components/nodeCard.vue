@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
 import { EditorNode } from '@renderer/types'
-import { EditorBoxEnum } from '@renderer/enum'
+import { EditorBoxEnum } from 'deciphony-engine'
 import { nodeNameMap } from '@renderer/constant'
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps({
@@ -20,7 +20,7 @@ const {
   removeNode,
   groupedNodes,
   clearNodeManager
-} = useNodeManager()
+} = useEditorNodeManager()
 
 function deleteNode() {
   ElMessageBox.confirm('确认删除', 'Warning', {

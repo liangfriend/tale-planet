@@ -21,17 +21,17 @@ const routes: RouteRecordRaw[] = [
         path: '/game',
         meta: { title: '游戏' },
         redirect: '/game/entry',
-        component: () => import('./views/game/index.vue'),
+        component: () => () => import('./views/game/index.vue'),
         children: [
           {
             path: '/game/entry',
             meta: { title: '游戏入口' },
-            component: () => import('./views/game/entry.vue')
+            component: () => () => import('./views/game/entry.vue')
           },
           {
             path: '/game/game',
             meta: { title: '游戏界面' },
-            component: () => import('./views/game/game.vue')
+            component: () => () => import('./views/game/game.vue')
           }
         ]
       }

@@ -1,9 +1,7 @@
 import { computed, ComputedRef, Ref, ref, watch, watchEffect } from 'vue'
-import { NodeEnum } from '@renderer/enum'
-import { EditorInfo, EditorNode, EngineNode, OperationHistory, Prefab } from '@renderer/types'
-import { Resolve } from 'element-plus'
-import { editor } from 'monaco-editor'
-import { useOperationHistory } from '@renderer/composables/useOperationHistory'
+import { NodeEnum } from 'deciphony-engine'
+import { EditorNode, EngineNode, Prefab } from '../types'
+import { useOperationHistory } from '../composables/useOperationHistory'
 
 export type NodeManager = {
   nodeMap: Ref<Map<number, EngineNode>>
@@ -178,7 +176,7 @@ export async function updateLoadedEditorNodeList(
 }
 
 // 为了保证游戏数据和编辑器数据隔离，初始化两次
-export function useNodeManager(): NodeManager {
+export function useEditorNodeManager(): NodeManager {
   if (!res) {
     // 这里不让它异步，这里只是返回一些空数据保证不报错
     res = setup({ editorNodeList: [], prefabList: [] })

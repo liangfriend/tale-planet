@@ -1,4 +1,4 @@
-import { useNodeManager } from '@renderer/composables/useNodeManager'
+import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
 import {
   ActionNode,
   CaptionNode,
@@ -16,10 +16,10 @@ import {
   LayoutPositionEnum,
   NodeEnum,
   ObjectFitEnum
-} from '@renderer/enum'
+} from 'deciphony-engine'
 
 const { editorNodeList, nodeMap, editorNodeMap, addNode, groupedNodes, clearNodeManager } =
-  useNodeManager()
+  useEditorNodeManager()
 import { editorNodeTemplate } from '@renderer/utils/nodeTemplate'
 
 // 生成常用节点

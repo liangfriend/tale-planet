@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { updateLoadedEditorNodeList, useNodeManager } from '@renderer/composables/useNodeManager'
-import type { SaveModel, StoryNode } from '@renderer/types'
+import { updateLoadedEditorNodeList, useNodeManager } from 'deciphony-enginecomposables/useNodeManager'
+import type { SaveModel, StoryNode } from 'deciphony-enginetypes'
 import { ElMessage } from 'element-plus'
-import { updateLoadedGameData, useGameData } from '@renderer/composables/useGameData'
+import { updateLoadedGameData, useGameData } from 'deciphony-enginecomposables/useGameData'
 
 // ------------------- 数据 & 路由 -------------------
 const router = useRouter()
