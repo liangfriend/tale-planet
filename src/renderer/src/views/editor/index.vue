@@ -19,10 +19,8 @@ import {
   NodeEnum,
   ObjectFitEnum
 } from 'deciphony-engine'
-import {
-  updateLoadedEditorNodeList,
-  useEditorNodeManager
-} from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import NormalRectBox from './components/normalRectBox.vue'
 import RightTools from './components/rightTools.vue'
 import LeftDrawer from './components/leftDrawer.vue'
@@ -31,8 +29,6 @@ import { editorNodeTemplate } from '@renderer/utils/nodeTemplate'
 import { updateLoadedEditorInfo, useEditor } from '@renderer/composables/useEditor'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-import MonacoEditor from '@renderer/components/monacoEditor.vue'
-import { updateLoadedGameData, useGameData } from '@renderer/composables/useGameData'
 import { useOperationHistory } from '@renderer/composables/useOperationHistory'
 import PublishDialog from '@renderer/views/editor/components/publishDialog.vue'
 import updateGameDialog from '@renderer/views/editor/components/updateGmaeDialog.vue'
@@ -45,24 +41,19 @@ const router = useRouter()
 const route = useRoute()
 // =====================================数据初始化==================================
 const { editorInfo, resetEditorInfo } = useEditor()
-const { gameData } = useGameData()
+const dataStore = useDataStore()
+const { editorNodeList, nodeMap, editorNodeMap, groupedNodes, prefabList } = storeToRefs(dataStore)
 const {
-  editorNodeList,
-  nodeMap,
-  editorNodeMap,
   addNode,
-  groupedNodes,
   clearNodeManager,
-  prefabList,
   addPrefab: registerPrefab,
   removeNode,
   removeNodes,
   addNodes
-} = useEditorNodeManager()
+} = dataStore
 const { undo, redo, pushHistory } = useOperationHistory({
   editorNodeList,
   editorInfo,
-  gameData,
   prefabList
 })
 
@@ -70,11 +61,12 @@ const workId = computed(() => {
   return route.query.workId
 })
 onMounted(async () => {
+  // 查询到work数据， work.data 包含 editorNodeList prefabList
   const work = (await window.api.work.query({ id: workId.value })).data[0]
   const data = JSON.parse(work.data)
   if (data) {
-    await updateLoadedEditorNodeList(data.editorNodeList, data.prefabList)
-    updateLoadedGameData(data.gameData)
+    // 更新data到全局变量
+    dataStore.loadData(data.editorNodeList, data.prefabList)
     updateLoadedEditorInfo(data.editorInfo)
   }
   const resourceList = (await window.api.resource.list()).data
@@ -87,7 +79,6 @@ onMounted(async () => {
       undo({
         editorNodeList: editorNodeList.value,
         editorInfo: editorInfo.value,
-        gameData: gameData.value,
         prefabList: prefabList.value
       })
     }
@@ -97,7 +88,6 @@ onMounted(async () => {
       redo({
         editorNodeList: editorNodeList.value,
         editorInfo: editorInfo.value,
-        gameData: gameData.value,
         prefabList: prefabList.value
       })
     }
@@ -727,7 +717,6 @@ async function save() {
   const data = {
     editorInfo: editorInfo.value,
     editorNodeList: editorNodeList.value,
-    gameData: gameData.value,
     prefabList: prefabList.value
   }
   await window.api.work.update(workId.value, { data: JSON.stringify(data) })
@@ -752,8 +741,6 @@ function startGame() {
 const leftDrawerVisible = ref(false)
 // 资源总览弹窗
 const staticResourcesVisible = ref(false)
-// 数据卡展示
-const dataCardVisible = ref(false)
 // 发布游戏弹窗
 const publishDialogVisible = ref(false)
 // 更新到游戏弹窗
@@ -815,7 +802,6 @@ provide('curSelectedNode', curSelectedNode)
         <div class="toolbar-right">
           <el-space wrap size="small">
             <el-button size="small" @click="save">保存</el-button>
-            <el-button size="small" @click="dataCardVisible = true">数据卡</el-button>
             <el-button size="small" @click="leftDrawerVisible = true">节点管理</el-button>
             <el-button size="small" @click="groupDialogVisible = true">组管理</el-button>
             <el-button size="small" @click="staticResourcesVisible = true">静态资源总览</el-button>
@@ -965,19 +951,16 @@ provide('curSelectedNode', curSelectedNode)
   </div>
   <left-drawer v-model="leftDrawerVisible"></left-drawer>
   <static-resources-dialog v-model="staticResourcesVisible"></static-resources-dialog>
-  <el-dialog v-model="dataCardVisible">
-    <monaco-editor v-model="gameData"></monaco-editor>
-  </el-dialog>
   <publish-dialog
     :editor-info="editorInfo"
-    :game-data="gameData"
     :editor-node-list="editorNodeList"
+    :prefab-list="prefabList"
     v-model="publishDialogVisible"
   ></publish-dialog>
   <update-game-dialog
     :editor-info="editorInfo"
-    :game-data="gameData"
     :editor-node-list="editorNodeList"
+    :prefab-list="prefabList"
     v-model="updateGameVisible"
   >
   </update-game-dialog>

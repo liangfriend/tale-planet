@@ -11,7 +11,8 @@ import {
   nodeNameMap,
   objectFitList
 } from '@renderer/constant'
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import monacoEditor from '@renderer/components/monacoEditor.vue'
 import MonacoEditor from '@renderer/components/monacoEditor.vue'
 import ResourceSelect from '@renderer/views/editor/components/resourceSelect.vue'
@@ -27,15 +28,9 @@ const props = defineProps({
     required: true
   }
 })
-const {
-  editorNodeList,
-  nodeMap,
-  editorNodeMap,
-  addNode,
-  removeNode,
-  groupedNodes,
-  clearNodeManager
-} = useEditorNodeManager()
+const dataStore = useDataStore()
+const { editorNodeList, nodeMap, editorNodeMap, groupedNodes } = storeToRefs(dataStore)
+const { addNode, removeNode, clearNodeManager } = dataStore
 
 const emit = defineEmits(['update:modelValue'])
 

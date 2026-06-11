@@ -1,4 +1,5 @@
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import {
   ActionNode,
   CaptionNode,
@@ -17,13 +18,12 @@ import {
   NodeEnum,
   ObjectFitEnum
 } from 'deciphony-engine'
-
-const { editorNodeList, nodeMap, editorNodeMap, addNode, groupedNodes, clearNodeManager } =
-  useEditorNodeManager()
 import { editorNodeTemplate } from '@renderer/utils/nodeTemplate'
 
-// 生成常用节点
 export function generateNormalNode() {
+  const dataStore = useDataStore()
+  const { nodeMap } = storeToRefs(dataStore)
+  const { addNode } = dataStore
   const storyNode = nodeMap.value.get(1) as StoryNode
   //底部字幕布局
   const bottomCaptionLayoutNode = {

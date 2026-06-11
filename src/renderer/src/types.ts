@@ -74,6 +74,5 @@ export type EditorInfo = {
 export type OperationHistory = {
   editorInfo: EditorInfo
   editorNodeList: EditorNode[]
-  gameData: string
   prefabList: Array<Prefab>
 }

@@ -55,7 +55,6 @@ async function createWork() {
     isTemplate: form.isTemplate,
     data: JSON.stringify({
       editorNodeList: [],
-      gameData: '{}',
       prefabList: [],
       editorInfo: defaultConfig
     })

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive, watch, PropType, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { EditorInfo, EditorNode } from '@renderer/types'
+import { EditorInfo, EditorNode, Prefab } from '@renderer/types'
 
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   editorNodeList: { type: Array as PropType<EditorNode[]>, required: true },
-  gameData: { type: String, required: true },
+  prefabList: { type: Array as PropType<Prefab[]>, required: true },
   editorInfo: { type: Object as PropType<EditorInfo>, required: true }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -45,7 +45,7 @@ async function publishGame() {
     front_cover: form.front_cover || '',
     data: JSON.stringify({
       editorNodeList: props.editorNodeList,
-      gameData: props.gameData, // 这个应该去掉，editorNodeList能解析出来gameData
+      prefabList: props.prefabList,
       editorInfo: props.editorInfo
     })
   }

@@ -7,7 +7,8 @@ import { EditorBoxEnum, NodeEnum } from 'deciphony-engine'
 import NodeCard from './nodeCard.vue'
 import NodeInfoDialog from './nodeInfoDialog.vue'
 import { editorNodeTemplate } from '@renderer/utils/nodeTemplate'
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import { useEditor } from '@renderer/composables/useEditor'
 
 const props = defineProps({
@@ -16,15 +17,9 @@ const props = defineProps({
     default: false
   }
 })
-const {
-  editorNodeList,
-  nodeMap,
-  editorNodeMap,
-  addNode,
-  removeNode,
-  groupedNodes,
-  clearNodeManager
-} = useEditorNodeManager()
+const dataStore = useDataStore()
+const { editorNodeList, nodeMap, editorNodeMap, groupedNodes } = storeToRefs(dataStore)
+const { addNode, removeNode, clearNodeManager } = dataStore
 
 const emit = defineEmits(['update:modelValue'])
 // 顶部筛选列表

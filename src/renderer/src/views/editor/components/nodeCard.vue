@@ -3,7 +3,8 @@ import { PropType } from 'vue'
 import { EditorNode } from '@renderer/types'
 import { EditorBoxEnum } from 'deciphony-engine'
 import { nodeNameMap } from '@renderer/constant'
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps({
@@ -12,15 +13,9 @@ const props = defineProps({
     required: true
   }
 })
-const {
-  editorNodeList,
-  nodeMap,
-  editorNodeMap,
-  addNode,
-  removeNode,
-  groupedNodes,
-  clearNodeManager
-} = useEditorNodeManager()
+const dataStore = useDataStore()
+const { editorNodeList, nodeMap, editorNodeMap, groupedNodes } = storeToRefs(dataStore)
+const { addNode, removeNode, clearNodeManager } = dataStore
 
 function deleteNode() {
   ElMessageBox.confirm('确认删除', 'Warning', {

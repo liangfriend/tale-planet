@@ -4,22 +4,17 @@ import { NodeEnum } from 'deciphony-engine'
 import DynamicSelectGroup from '@renderer/components/dynamicSelectGroup.vue'
 import { nodeNameMap } from '@renderer/constant'
 import { useRoute, useRouter } from 'vue-router'
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 import { computed, inject, onMounted, ref, Ref } from 'vue'
 import { EditorNode, ImageNode, ResourceModel, StoryNode } from '@renderer/types'
 import MonacoEditor from '@renderer/components/monacoEditor.vue'
 import { useStaticResource } from '@renderer/composables/useStaticResource'
 import ResourceSelect from '@renderer/views/editor/components/resourceSelect.vue'
 
-const {
-  editorNodeList,
-  nodeMap,
-  editorNodeMap,
-  addNode,
-  removeNode,
-  groupedNodes,
-  clearNodeManager
-} = useEditorNodeManager()
+const dataStore = useDataStore()
+const { editorNodeList, nodeMap, editorNodeMap, groupedNodes } = storeToRefs(dataStore)
+const { addNode, removeNode, clearNodeManager } = dataStore
 const curSelectedNode: Ref<EditorNode> = inject('curSelectedNode')!
 
 function deleteNode() {

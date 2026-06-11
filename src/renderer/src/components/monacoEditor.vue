@@ -3,7 +3,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { useEditorNodeManager } from '@renderer/composables/useEditorNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
 
 const props = defineProps({
   modelValue: {
@@ -20,7 +21,7 @@ return true`
     default: '400px'
   }
 })
-const { editorNodeMap } = useEditorNodeManager()
+const { editorNodeMap } = storeToRefs(useDataStore())
 const emit = defineEmits(['update:modelValue', 'run'])
 
 const editorEl = ref<HTMLElement | null>(null)

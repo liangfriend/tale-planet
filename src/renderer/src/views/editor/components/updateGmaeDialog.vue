@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive, watch, PropType, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { EditorInfo, EditorNode, GameModel } from '@renderer/types'
+import { EditorInfo, EditorNode, GameModel, Prefab } from '@renderer/types'
 
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   editorNodeList: { type: Array as PropType<EditorNode[]>, required: true },
-  gameData: { type: String, required: true },
+  prefabList: { type: Array as PropType<Prefab[]>, required: true },
   editorInfo: { type: Object as PropType<EditorInfo>, required: true }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -39,7 +39,7 @@ function updateGame() {
       await window.api.game.update(targetGameId.value, {
         data: JSON.stringify({
           editorNodeList: props.editorNodeList,
-          gameData: props.gameData,
+          prefabList: props.prefabList,
           editorInfo: props.editorInfo
         })
       })

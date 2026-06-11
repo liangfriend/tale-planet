@@ -1,64 +1,33 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { updateLoadedEditorNodeList, useNodeManager } from 'deciphony-enginecomposables/useNodeManager'
+import { storeToRefs } from 'pinia'
+import { useDataStore } from '@renderer/store/dataStore'
+import { updateLoadedGameData } from 'deciphony-engine'
 import type { SaveModel, StoryNode } from 'deciphony-enginetypes'
 import { ElMessage } from 'element-plus'
-import { updateLoadedGameData, useGameData } from 'deciphony-enginecomposables/useGameData'
 
-// ------------------- 数据 & 路由 -------------------
+const dataStore = useDataStore()
+const { nodeMap } = storeToRefs(dataStore)
+
 const router = useRouter()
 const route = useRoute()
 
-// ====================数据初始化======================
-const { nodeMap } = useNodeManager()
-const { gameData } = useGameData()
-// test game
-const type = computed(() => {
-  return route.query.type
-})
-const gameId = computed((): number => {
-  const id = +route.query.gameId!
-  return id as number
-})
+const type = computed(() => route.query.type as string)
+const gameId = computed((): number => +route.query.gameId!)
 const sceneId = computed((): number => {
-  if (route.query.sceneId) {
-    return +route.query.sceneId
-  }
+  if (route.query.sceneId) return +route.query.sceneId
   return -1
 })
-// 故事节点（标题）
-const storyNode = computed(() => {
-  return nodeMap.value.get(1) as StoryNode
-})
+
+const storyNode = computed(() => nodeMap.value.get(1) as StoryNode)
 
 async function initData() {
-  if (type.value === 'test') {
-    const data = (await window.api.work.query({ id: gameId.value })).data?.[0]
-    if (data) {
-      const editorNodeList = JSON.parse(data.data).editorNodeList
-      const prefabList = JSON.parse(data.data).prefabList
-      await updateLoadedEditorNodeList(editorNodeList, prefabList)
-      const gameData = JSON.parse(data.data).gameData
-      updateLoadedGameData(gameData)
-    }
-  } else if (type.value === 'game') {
-    const data = (await window.api.game.query({ id: gameId.value })).data?.[0]
-    if (data) {
-      const editorNodeList = JSON.parse(data.data).editorNodeList
-      const prefabList = JSON.parse(data.data).prefabList
-      await updateLoadedEditorNodeList(editorNodeList, prefabList)
-      const gameData = JSON.parse(data.data).gameData
-      updateLoadedGameData(gameData)
-    }
-  }
+  await dataStore.loadFromApi(type.value as 'test' | 'game', gameId.value)
 }
 
-onMounted(async () => {
-  await initData()
-})
+onMounted(initData)
 
-// ------------------- 菜单 -------------------
 const menuList = computed(() => {
   if (type.value === 'test') {
     return [{ key: 'test', label: '测试游戏' }]
@@ -71,19 +40,11 @@ const menuList = computed(() => {
   ]
 })
 
-// ------------------- 存档相关 -------------------
-
-// 新建存档
 const newSaveDialog = ref(false)
 const newSaveName = ref('')
-
-// 加载存档弹窗
 const loadDialog = ref(false)
-
-// 存档列表（后台接口）
 const saveList = ref<SaveModel[]>([])
 
-// 提交新建存档并进入游戏
 const createNewSave = async () => {
   if (!newSaveName.value) {
     ElMessage.warning('请输入存档名')
@@ -93,10 +54,11 @@ const createNewSave = async () => {
     await window.api.save.create({
       game_id: gameId.value,
       name: newSaveName.value,
-      data: JSON.stringify({ sceneId: -1, gameData: gameData })
+      data: JSON.stringify({ sceneId: -1, gameData: '{}' })
     })
   ).data
   newSaveDialog.value = false
+  updateLoadedGameData('{}')
   router.replace({
     path: '/game/game',
     query: { saveId: save.id, gameId: gameId.value, sceneId: -1, type: type.value }
@@ -107,39 +69,33 @@ async function getSaveList(gameId: number) {
   saveList.value = (await window.api.save.query({ game_id: gameId })).data
 }
 
-// 点击加载某个存档
 const loadSave = async (save) => {
   const data = JSON.parse(save.data)
-
+  updateLoadedGameData(data.gameData ?? '{}')
   router.replace({
     path: '/game/game',
     query: { type: type.value, saveId: save.id, gameId: gameId.value, sceneId: data.sceneId }
   })
 }
 
-// ------------------- 菜单点击 -------------------
 async function onMenuClick(key: string) {
   switch (key) {
     case 'start':
       newSaveDialog.value = true
       break
-
-    case 'loadSave': {
+    case 'loadSave':
       await getSaveList(gameId.value)
       loadDialog.value = true
       break
-    }
     case 'test':
+      updateLoadedGameData('{}')
       router.replace({
         path: '/game/game',
         query: { gameId: gameId.value, sceneId: sceneId.value, type: type.value }
       })
       break
-
     case 'exit':
-      router.replace({
-        path: '/home'
-      })
+      router.replace({ path: '/home' })
       break
   }
 }
@@ -147,25 +103,23 @@ async function onMenuClick(key: string) {
 
 <template>
   <div class="stack w-screen h-screen bg-black text-white" v-if="storyNode">
-    <!-- ================== 背景层 ================== -->
     <div class="stack-item">
       <div class="game-bg w-full h-full">
-        <!-- 这里你可以放背景图、粒子动画、视频背景等 -->
         <img class="bg-url" v-if="storyNode.bgUrl" :src="storyNode.bgUrl"></img>
       </div>
-      <!-- 游戏标题 -->
       <div
         class="absolute top-[10%] left-1/2 -translate-x-1/2 text-6xl font-bold tracking-widest drop-shadow-lg"
-        :style="{color:storyNode.fontColor || 'white'}"
+        :style="{ color: storyNode.fontColor || 'white' }"
       >
         {{ storyNode.nodeName }}
       </div>
     </div>
-    <!-- ================== 功能层（UI 层）================== -->
     <div class="stack-item">
       <div>
-        <!-- 菜单 -->
-        <div class="absolute top-[35%] left-[12%] flex flex-col gap-6" :style="{color:storyNode.fontColor || 'white'}">
+        <div
+          class="absolute top-[35%] left-[12%] flex flex-col gap-6"
+          :style="{ color: storyNode.fontColor || 'white' }"
+        >
           <div
             v-for="item in menuList"
             :key="item.key"
@@ -176,17 +130,14 @@ async function onMenuClick(key: string) {
           </div>
         </div>
 
-        <!-- 开始游戏弹窗 -->
         <el-dialog v-model="newSaveDialog" title="新建存档" width="400px">
           <el-input v-model="newSaveName" placeholder="请输入存档名" />
-
           <template #footer>
             <el-button @click="newSaveDialog = false">取消</el-button>
             <el-button type="primary" @click="createNewSave">进入游戏</el-button>
           </template>
         </el-dialog>
 
-        <!-- 加载存档弹窗 -->
         <el-dialog v-model="loadDialog" title="选择存档" width="600px">
           <div class="grid grid-cols-2 gap-4">
             <div
@@ -198,7 +149,6 @@ async function onMenuClick(key: string) {
               <div class="text-xl font-bold mb-2">{{ save.name }}</div>
             </div>
           </div>
-
           <template #footer>
             <el-button @click="loadDialog = false">关闭</el-button>
           </template>
@@ -220,7 +170,6 @@ async function onMenuClick(key: string) {
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
 }
 
-/* 左侧竖线 */
 .menu-text::before {
   content: '';
   position: absolute;
