@@ -7,6 +7,7 @@ import { workInvoke } from './invoke/work'
 import { fileInvoke } from './invoke/file'
 import { windowInvoke } from './invoke/window'
 import { groupInvoke } from './invoke/group'
+import { exportInvoke } from './invoke/export'
 
 const api = {}
 
@@ -19,7 +20,8 @@ if (process.contextIsolated) {
       save: saveInvoke,
       work: workInvoke,
       window: windowInvoke,
-      group: groupInvoke
+      group: groupInvoke,
+      export: exportInvoke
     })
   } catch (error) {
     console.error(error)

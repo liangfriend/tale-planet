@@ -38,6 +38,8 @@ import { getNumericUUID } from '@renderer/utils/crypto'
 import GroupDialog from '@renderer/views/editor/components/groupDialog.vue'
 import MonacoEditor from '@renderer/components/monacoEditor.vue'
 import { formatExtraDataText, parseExtraDataText } from '@renderer/utils/extraData'
+import ExportLoadingOverlay from '@renderer/components/exportLoadingOverlay.vue'
+import { DE_BASE_URL } from '@shared/constants/export'
 
 const router = useRouter()
 const route = useRoute()
@@ -779,6 +781,36 @@ const publishDialogVisible = ref(false)
 const updateGameVisible = ref(false)
 // 组管理弹窗
 const groupDialogVisible = ref(false)
+const exportLoadingVisible = ref(false)
+
+async function exportGameData() {
+  let extraData: Record<string, unknown>
+  try {
+    extraData = readExtraData()
+  } catch {
+    return
+  }
+
+  exportLoadingVisible.value = true
+  try {
+    const result = await window.api.export.gameBundle({
+      gameData: JSON.parse(JSON.stringify(editorNodeList.value)),
+      extraData: JSON.parse(JSON.stringify(extraData))
+    })
+    exportLoadingVisible.value = false
+    if (result.canceled) return
+    await ElMessageBox.alert(
+      `保存完成。共打包 ${result.resourceCount ?? 0} 个资源文件，所有资源路径前缀已替换为 ${DE_BASE_URL}。`,
+      '导出成功',
+      { type: 'success', confirmButtonText: '确定' }
+    )
+  } catch (e: unknown) {
+    exportLoadingVisible.value = false
+    const msg = e instanceof Error ? e.message : '导出失败'
+    ElMessage.error(msg)
+  }
+}
+
 provide('curSelectedNode', curSelectedNode)
 </script>
 
@@ -843,6 +875,7 @@ provide('curSelectedNode', curSelectedNode)
               >游戏预览</el-button
             >
             <el-button size="small" @click="publishDialogVisible = true">发布</el-button>
+            <el-button size="small" @click="exportGameData">导出游戏数据</el-button>
             <el-button size="small" @click="updateGameVisible = true">更新数据到游戏</el-button>
           </el-space>
         </div>
@@ -986,7 +1019,9 @@ provide('curSelectedNode', curSelectedNode)
   <static-resources-dialog v-model="staticResourcesVisible"></static-resources-dialog>
   <el-dialog v-model="extraDataDialogVisible" title="自定义数据" width="720px">
     <p class="extra-data-hint">
-      请填写 <strong>JSON 格式</strong>的对象（不是 JavaScript 代码）。例如：<code>{"favor": 0}</code>
+      请填写 <strong>JSON 格式</strong>的对象（不是 JavaScript 代码）。例如：<code
+        >{"favor": 0}</code
+      >
     </p>
     <p class="extra-data-hint extra-data-hint--sub">
       用于测试游玩 / 新建存档时的初始运行时数据；条件节点与 DataChange 行为中通过 extraData 读写。
@@ -1009,6 +1044,7 @@ provide('curSelectedNode', curSelectedNode)
   >
   </update-game-dialog>
   <group-dialog v-model="groupDialogVisible"></group-dialog>
+  <export-loading-overlay :visible="exportLoadingVisible" />
   <context-menu :x="menuPos.x" :y="menuPos.y" :show="showMenu" @close="closeMenu">
     <div class="menu-item" @click="copySelectedNodesToTempPrefab">复制</div>
     <div class="menu-item" @click="spawnPrefab(tempPrefab, menuGridPos.x, menuGridPos.y)">粘贴</div>

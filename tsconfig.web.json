@@ -19,6 +19,9 @@
       "@renderer/*": [
         "src/renderer/src/*"
       ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
       "deciphony-engine": [
         "../deciphony/packages/deciphony-engine/src/index.ts"
       ],

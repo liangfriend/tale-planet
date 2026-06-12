@@ -17,4 +17,6 @@ export async function registerController() {
   fileController.register()
   const windowController = container.resolve('windowController')
   windowController.register()
+  const exportController = container.resolve('exportController')
+  exportController.register()
 }

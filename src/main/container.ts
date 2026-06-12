@@ -21,6 +21,8 @@ import { GroupService } from './services/groupService'
 import { GroupController } from './controllers/groupController'
 import { GroupRepository } from './repositories/groupRepository'
 import { WindowController } from './controllers/windowController'
+import { ExportService } from './services/exportService'
+import { ExportController } from './controllers/exportController'
 
 export const container = createContainer()
 
@@ -58,7 +60,10 @@ export async function setupContainer() {
     windowController: asClass(WindowController).singleton(),
 
     fileService: asClass(FileService).singleton(),
-    fileController: asClass(FileController).singleton()
+    fileController: asClass(FileController).singleton(),
+
+    exportService: asClass(ExportService).singleton(),
+    exportController: asClass(ExportController).singleton()
   })
 
   return container

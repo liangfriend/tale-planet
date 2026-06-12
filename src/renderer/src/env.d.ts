@@ -52,6 +52,16 @@ declare global {
         focus: (name: string) => void
         get: (name: string) => void
       }
+      export: {
+        gameBundle(payload: {
+          gameData: unknown
+          extraData: Record<string, unknown>
+        }): Promise<{
+          canceled: boolean
+          filePath?: string
+          resourceCount?: number
+        }>
+      }
     }
   }
 }
