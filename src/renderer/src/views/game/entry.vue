@@ -3,8 +3,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useDataStore } from '@renderer/store/dataStore'
-import { updateLoadedGameData } from 'deciphony-engine'
 import type { SaveModel, StoryNode } from 'deciphony-enginetypes'
+import { parseSaveData, stringifySaveData } from '@renderer/utils/saveData'
 import { ElMessage } from 'element-plus'
 
 const dataStore = useDataStore()
@@ -54,11 +54,10 @@ const createNewSave = async () => {
     await window.api.save.create({
       game_id: gameId.value,
       name: newSaveName.value,
-      data: JSON.stringify({ sceneId: -1, gameData: '{}' })
+      data: stringifySaveData({ sceneId: -1, extraData: {} })
     })
   ).data
   newSaveDialog.value = false
-  updateLoadedGameData('{}')
   router.replace({
     path: '/game/game',
     query: { saveId: save.id, gameId: gameId.value, sceneId: -1, type: type.value }
@@ -69,9 +68,8 @@ async function getSaveList(gameId: number) {
   saveList.value = (await window.api.save.query({ game_id: gameId })).data
 }
 
-const loadSave = async (save) => {
-  const data = JSON.parse(save.data)
-  updateLoadedGameData(data.gameData ?? '{}')
+const loadSave = async (save: SaveModel) => {
+  const data = parseSaveData(save.data)
   router.replace({
     path: '/game/game',
     query: { type: type.value, saveId: save.id, gameId: gameId.value, sceneId: data.sceneId }
@@ -88,7 +86,6 @@ async function onMenuClick(key: string) {
       loadDialog.value = true
       break
     case 'test':
-      updateLoadedGameData('{}')
       router.replace({
         path: '/game/game',
         query: { gameId: gameId.value, sceneId: sceneId.value, type: type.value }

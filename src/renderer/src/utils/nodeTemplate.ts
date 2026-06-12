@@ -1,4 +1,8 @@
 import {
+  conditionFuncTemplate,
+  dataChangeFuncTemplate
+} from '@renderer/utils/scriptTemplates'
+import {
   ActionTypeEnum,
   CurtainTypeEnum,
   EditorBoxEnum,
@@ -169,7 +173,7 @@ export function actionNodeTemplate(): ActionNode {
     actionIds: [], // 组合行为专用
     data: null,
     executeConditionIds: [],
-    dataChangeFunc: `const data = gameData`
+    dataChangeFunc: dataChangeFuncTemplate
   }
 }
 
@@ -292,9 +296,7 @@ export function conditionNodeTemplate(): ConditionNode {
     id: Date.now(),
     nodeName: '条件节点',
     nodeType: NodeEnum.Condition,
-    func: `const storyNode = editorNodeMap.get(1).node
-const data = gameData
-return true`
+    func: conditionFuncTemplate
   }
 }
 

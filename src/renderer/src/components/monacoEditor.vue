@@ -3,14 +3,14 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import { conditionFuncTemplate } from '@renderer/utils/scriptTemplates'
 import { storeToRefs } from 'pinia'
 import { useDataStore } from '@renderer/store/dataStore'
 
 const props = defineProps({
   modelValue: {
     type: String,
-    default: `const storyNode = editorNodeMap.get(1).node
-return true`
+    default: conditionFuncTemplate
   },
   height: {
     type: String,
@@ -21,7 +21,7 @@ return true`
     default: '400px'
   }
 })
-const { editorNodeMap } = storeToRefs(useDataStore())
+const { editorNodeMap, nodeMap } = storeToRefs(useDataStore())
 const emit = defineEmits(['update:modelValue', 'run'])
 
 const editorEl = ref<HTMLElement | null>(null)
@@ -76,6 +76,8 @@ function runCode() {
   try {
     // 提供一个沙盒逻辑，避免污染全局
     const fn = new Function(
+      'nodeMap',
+      'extraData',
       'editorNodeMap',
       `
       try {
@@ -85,9 +87,14 @@ function runCode() {
       }
     `
     )
-    // 防止编辑器组件真的修改了editorNodeMap
-    const clonedData = JSON.parse(JSON.stringify(editorNodeMap.value))
-    const result = fn(clonedData)
+    const clonedNodeMap = new Map(
+      [...nodeMap.value.entries()].map(([k, v]) => [k, JSON.parse(JSON.stringify(v))])
+    )
+    const clonedEditorNodeMap = new Map(
+      [...editorNodeMap.value.entries()].map(([k, v]) => [k, JSON.parse(JSON.stringify(v))])
+    )
+    const extraData: Record<string, unknown> = {}
+    const result = fn(clonedNodeMap, extraData, clonedEditorNodeMap)
     emit('run', result)
   } catch (e: any) {
     emit('run', { error: e.message, msg: '某个代码编辑器里的代码语法有误' })
