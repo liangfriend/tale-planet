@@ -36,6 +36,8 @@ import { generateNormalNode } from '@renderer/utils/usefulNode'
 import ContextMenu from '@renderer/components/contextMenu.vue'
 import { getNumericUUID } from '@renderer/utils/crypto'
 import GroupDialog from '@renderer/views/editor/components/groupDialog.vue'
+import MonacoEditor from '@renderer/components/monacoEditor.vue'
+import { formatExtraDataText, parseExtraDataText } from '@renderer/utils/extraData'
 
 const router = useRouter()
 const route = useRoute()
@@ -57,6 +59,26 @@ const { undo, redo, pushHistory } = useOperationHistory({
   prefabList
 })
 
+/** 测试游玩时的 extraData 初始值（JSON 文本，monaco 编辑） */
+const extraDataText = ref('{}')
+
+function readExtraData(): Record<string, unknown> {
+  try {
+    return parseExtraDataText(extraDataText.value)
+  } catch {
+    ElMessage.error('extraData JSON 格式错误，请检查后再保存')
+    throw new Error('invalid extraData')
+  }
+}
+
+const workExtraData = computed(() => {
+  try {
+    return parseExtraDataText(extraDataText.value)
+  } catch {
+    return {}
+  }
+})
+
 const workId = computed(() => {
   return route.query.workId
 })
@@ -66,8 +88,9 @@ onMounted(async () => {
   const data = JSON.parse(work.data)
   if (data) {
     // 更新data到全局变量
-    dataStore.loadData(data.editorNodeList, data.prefabList)
+    dataStore.loadData(data.editorNodeList, data.prefabList, data.extraData ?? {})
     updateLoadedEditorInfo(data.editorInfo)
+    extraDataText.value = formatExtraDataText(data.extraData ?? {})
   }
   const resourceList = (await window.api.resource.list()).data
   // 绑定撤销/恢复事件
@@ -713,12 +736,19 @@ function reset() {
 
 // 保存编辑器和节点信息
 async function save() {
-  // 更新数据
+  let extraData: Record<string, unknown>
+  try {
+    extraData = readExtraData()
+  } catch {
+    return
+  }
   const data = {
     editorInfo: editorInfo.value,
     editorNodeList: editorNodeList.value,
-    prefabList: prefabList.value
+    prefabList: prefabList.value,
+    extraData
   }
+  dataStore.defaultExtraData = extraData
   await window.api.work.update(workId.value, { data: JSON.stringify(data) })
   ElMessage.success('保存成功')
 }
@@ -741,6 +771,8 @@ function startGame() {
 const leftDrawerVisible = ref(false)
 // 资源总览弹窗
 const staticResourcesVisible = ref(false)
+// extraData 初始值编辑
+const extraDataDialogVisible = ref(false)
 // 发布游戏弹窗
 const publishDialogVisible = ref(false)
 // 更新到游戏弹窗
@@ -802,6 +834,7 @@ provide('curSelectedNode', curSelectedNode)
         <div class="toolbar-right">
           <el-space wrap size="small">
             <el-button size="small" @click="save">保存</el-button>
+            <el-button size="small" @click="extraDataDialogVisible = true">自定义数据</el-button>
             <el-button size="small" @click="leftDrawerVisible = true">节点管理</el-button>
             <el-button size="small" @click="groupDialogVisible = true">组管理</el-button>
             <el-button size="small" @click="staticResourcesVisible = true">静态资源总览</el-button>
@@ -951,16 +984,27 @@ provide('curSelectedNode', curSelectedNode)
   </div>
   <left-drawer v-model="leftDrawerVisible"></left-drawer>
   <static-resources-dialog v-model="staticResourcesVisible"></static-resources-dialog>
+  <el-dialog v-model="extraDataDialogVisible" title="自定义数据" width="720px">
+    <p class="extra-data-hint">
+      请填写 <strong>JSON 格式</strong>的对象（不是 JavaScript 代码）。例如：<code>{"favor": 0}</code>
+    </p>
+    <p class="extra-data-hint extra-data-hint--sub">
+      用于测试游玩 / 新建存档时的初始运行时数据；条件节点与 DataChange 行为中通过 extraData 读写。
+    </p>
+    <monaco-editor v-model="extraDataText" height="400px" width="100%"></monaco-editor>
+  </el-dialog>
   <publish-dialog
     :editor-info="editorInfo"
     :editor-node-list="editorNodeList"
     :prefab-list="prefabList"
+    :extra-data="workExtraData"
     v-model="publishDialogVisible"
   ></publish-dialog>
   <update-game-dialog
     :editor-info="editorInfo"
     :editor-node-list="editorNodeList"
     :prefab-list="prefabList"
+    :extra-data="workExtraData"
     v-model="updateGameVisible"
   >
   </update-game-dialog>
@@ -974,6 +1018,25 @@ provide('curSelectedNode', curSelectedNode)
 </template>
 
 <style scoped>
+.extra-data-hint {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.6;
+}
+
+.extra-data-hint--sub {
+  margin-bottom: 12px;
+}
+
+.extra-data-hint code {
+  font-size: 12px;
+  color: #606266;
+  background: #f4f4f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .engineContainer {
   display: grid;
   width: 100%;

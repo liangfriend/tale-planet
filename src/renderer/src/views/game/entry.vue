@@ -54,7 +54,7 @@ const createNewSave = async () => {
     await window.api.save.create({
       game_id: gameId.value,
       name: newSaveName.value,
-      data: stringifySaveData({ sceneId: -1, extraData: {} })
+      data: stringifySaveData({ sceneId: -1, extraData: { ...dataStore.defaultExtraData } })
     })
   ).data
   newSaveDialog.value = false

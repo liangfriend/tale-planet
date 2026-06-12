@@ -7,6 +7,8 @@ import { useOperationHistory } from '@renderer/composables/useOperationHistory'
 export const useDataStore = defineStore('data', () => {
   const editorNodeList = ref<EditorNode[]>([])
   const prefabList = ref<Prefab[]>([])
+  /** 测试/游玩时的 extraData 初始值（来自 work / game 表） */
+  const defaultExtraData = ref<Record<string, unknown>>({})
 
   const editorNodeMap = computed(() => {
     const map = new Map<number, EditorNode>()
@@ -55,24 +57,29 @@ export const useDataStore = defineStore('data', () => {
 
   const { pushHistory } = useOperationHistory({ editorNodeList, prefabList })
 
-  function loadData(list: EditorNode[], prefabs: Prefab[]) {
+  function loadData(
+    list: EditorNode[],
+    prefabs: Prefab[],
+    extraData: Record<string, unknown> = {}
+  ) {
     editorNodeList.value = list ?? []
     prefabList.value = prefabs ?? []
+    defaultExtraData.value = extraData ?? {}
   }
 
-  /** 从 work / game 表加载 editorNodeList 和 prefabList */
+  /** 从 work / game 表加载 */
   async function loadFromApi(type: 'test' | 'game', id: number) {
     if (type === 'test') {
       const work = (await window.api.work.query({ id })).data?.[0]
       if (work) {
         const data = JSON.parse(work.data)
-        loadData(data.editorNodeList ?? [], data.prefabList ?? [])
+        loadData(data.editorNodeList ?? [], data.prefabList ?? [], data.extraData ?? {})
       }
     } else {
       const game = (await window.api.game.query({ id })).data?.[0]
       if (game) {
         const data = JSON.parse(game.data)
-        loadData(data.editorNodeList ?? [], data.prefabList ?? [])
+        loadData(data.editorNodeList ?? [], data.prefabList ?? [], data.extraData ?? {})
       }
     }
   }
@@ -128,6 +135,7 @@ export const useDataStore = defineStore('data', () => {
   return {
     editorNodeList,
     prefabList,
+    defaultExtraData,
     engineNodes,
     nodeMap,
     editorNodeMap,

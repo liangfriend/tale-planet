@@ -56,7 +56,8 @@ async function createWork() {
     data: JSON.stringify({
       editorNodeList: [],
       prefabList: [],
-      editorInfo: defaultConfig
+      editorInfo: defaultConfig,
+      extraData: {}
     })
   }
   if (form.templateId !== -1) {

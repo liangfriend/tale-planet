@@ -7,6 +7,7 @@ const props = defineProps({
   modelValue: { type: Boolean, required: true },
   editorNodeList: { type: Array as PropType<EditorNode[]>, required: true },
   prefabList: { type: Array as PropType<Prefab[]>, required: true },
+  extraData: { type: Object as PropType<Record<string, unknown>>, default: () => ({}) },
   editorInfo: { type: Object as PropType<EditorInfo>, required: true }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -46,6 +47,7 @@ async function publishGame() {
     data: JSON.stringify({
       editorNodeList: props.editorNodeList,
       prefabList: props.prefabList,
+      extraData: props.extraData,
       editorInfo: props.editorInfo
     })
   }

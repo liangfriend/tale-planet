@@ -9,7 +9,7 @@ import { onMounted, ref } from 'vue'
 const route = useRoute()
 const router = useRouter()
 const dataStore = useDataStore()
-const { engineNodes } = storeToRefs(dataStore)
+const { engineNodes, defaultExtraData } = storeToRefs(dataStore)
 
 const ready = ref(false)
 const loadError = ref('')
@@ -65,6 +65,9 @@ onMounted(async () => {
     }
   } else if (route.query.sceneId != null) {
     sceneId.value = +route.query.sceneId
+    extraData.value = { ...defaultExtraData.value }
+  } else {
+    extraData.value = { ...defaultExtraData.value }
   }
 
   ready.value = true
