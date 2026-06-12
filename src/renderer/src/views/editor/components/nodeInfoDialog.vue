@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { EditorNode, ImageNode, ResourceModel } from '@renderer/types'
 import { ActionTypeEnum, EditorBoxEnum, NodeEnum } from 'deciphony-engine'
 import DynamicSelectGroup from '@renderer/components/dynamicSelectGroup.vue'
@@ -34,29 +34,22 @@ const { addNode, removeNode, clearNodeManager } = dataStore
 
 const emit = defineEmits(['update:modelValue'])
 
-watch(
-  () => props.nodeId,
-  () => {
-    if (editorNodeMap.value.has(props.nodeId)) {
-      editorNode.value = editorNodeMap.value.get(props.nodeId) as EditorNode
-    }
+function syncEditorNode() {
+  if (props.modelValue && editorNodeMap.value.has(props.nodeId)) {
+    editorNode.value = editorNodeMap.value.get(props.nodeId) as EditorNode
   }
-)
+}
+
+watch(() => props.nodeId, syncEditorNode)
+watch(() => props.modelValue, syncEditorNode)
+
 const editorNode = ref<EditorNode>(null!)
-const actionType = computed(() => {
-  if (editorNode.value?.node && 'actionType' in editorNode.value?.node) {
-    return editorNode.value.node.actionType
-  }
-  return null
-})
-// 行为节点行为类型变化时，清空目标id
-watch(actionType, (value, oldValue) => {
-  // oldvalue不存在说明是初始化
-  if (!oldValue) return
-  if (editorNode.value.node && 'targetId' in editorNode.value.node) {
+
+function onActionTypeChange() {
+  if (editorNode.value?.node && 'targetId' in editorNode.value.node) {
     editorNode.value.node.targetId = -1
   }
-})
+}
 
 const imageList = ref<ResourceModel[]>([])
 
@@ -459,7 +452,11 @@ onMounted(async () => {
     <template v-if="editorNode && editorNode.node.nodeType === NodeEnum.Action">
       <div class="flex mt-2">
         <div class="w-24 shrink-0">行为类型:</div>
-        <el-select v-model="editorNode.node.actionType" :style="{ width: '16rem' }">
+        <el-select
+          v-model="editorNode.node.actionType"
+          :style="{ width: '16rem' }"
+          @change="onActionTypeChange"
+        >
           <el-option
             v-for="item in actionTypeList"
             :label="item.label"
